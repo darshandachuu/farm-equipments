@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <h1 class="display-1 fw-bold text-muted">404</h1>
+    <p class="lead mb-4">The page you're looking for doesn't exist.</p>
+    <a href="{{ url_for('auth.index') }}" class="btn btn-success">Go Home</a>
+</div>
+{% endblock %}

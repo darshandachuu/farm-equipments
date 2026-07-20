@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-0">Admin Dashboard</h3>
+                    <p class="text-muted mb-0">System Overview</p>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#0d6efd,#0b5ed7);color:#fff">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="mb-0">{{ total_users }}</h3>
+                                    <small>Total Users</small>
+                                    <br><small class="opacity-75">{{ new_users_this_week }} this week</small>
+                                </div>
+                                <i class="bi bi-people fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#198754,#157347);color:#fff">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="mb-0">{{ total_equipment }}</h3>
+                                    <small>Equipment</small>
+                                    <br><small class="opacity-75">{{ pending_approval }} pending</small>
+                                </div>
+                                <i class="bi bi-tools fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#ffc107,#e0a800);color:#333">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="mb-0">{{ total_bookings }}</h3>
+                                    <small>Bookings</small>
+                                    <br><small class="opacity-75">{{ bookings_this_week }} this week</small>
+                                </div>
+                                <i class="bi bi-journal-bookmark fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#198754,#157347);color:#fff">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h3 class="mb-0">{{ format_currency(total_revenue) }}</h3>
+                                    <small>Revenue</small>
+                                </div>
+                                <i class="bi bi-currency-rupee fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <h4 class="text-primary mb-0">{{ total_farmers }}</h4>
+                        <small class="text-muted">Farmers</small>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <h4 class="text-info mb-0">{{ total_owners }}</h4>
+                        <small class="text-muted">Equipment Owners</small>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <h4 class="text-success mb-0">{{ active_bookings }}</h4>
+                        <small class="text-muted">Active Bookings</small>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <h4 class="text-warning mb-0">{{ pending_bookings }}</h4>
+                        <small class="text-muted">Pending Bookings</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between">
+                            <h5 class="fw-bold mb-0">Recent Bookings</h5>
+                            <a href="{{ url_for('admin.manage_bookings') }}" class="text-success text-decoration-none">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_bookings %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Equipment</th>
+                                            <th>Farmer</th>
+                                            <th>Owner</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for b in recent_bookings[:8] %}
+                                        <tr>
+                                            <td><strong>{{ b.booking_number }}</strong></td>
+                                            <td>{{ b.equipment.name }}</td>
+                                            <td>{{ b.farmer.full_name }}</td>
+                                            <td>{{ b.equipment.owner.user.full_name }}</td>
+                                            <td>{{ format_currency(b.total_amount) }}</td>
+                                            <td>
+                                                {% if b.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                {% elif b.status == 'approved' %}
+                                                <span class="badge bg-info">Approved</span>
+                                                {% elif b.status == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                                {% elif b.status == 'completed' %}
+                                                <span class="badge bg-secondary">Done</span>
+                                                {% else %}
+                                                <span class="badge bg-danger">{{ b.status|capitalize }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center py-3">No bookings yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    {% if pending_equipments %}
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-warning text-dark border-0">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-exclamation-triangle me-1"></i>Pending Approval</h6>
+                        </div>
+                        <div class="card-body">
+                            {% for e in pending_equipments %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <div>
+                                    <strong>{{ e.name }}</strong><br>
+                                    <small class="text-muted">{{ e.owner.user.full_name }}</small>
+                                </div>
+                                <form method="POST" action="{{ url_for('admin.approve_equipment', equipment_id=e.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-success">Approve</button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h6 class="fw-bold mb-0">Recent Users</h6>
+                        </div>
+                        <div class="card-body">
+                            {% for u in recent_users %}
+                            <div class="d-flex align-items-center mb-2 pb-2 border-bottom">
+                                <i class="bi bi-person-circle text-{{ 'primary' if u.role == 'farmer' else 'info' if u.role == 'owner' else 'success' }} fs-3 me-2"></i>
+                                <div>
+                                    <strong>{{ u.full_name }}</strong><br>
+                                    <small class="text-muted">{{ u.role|capitalize }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

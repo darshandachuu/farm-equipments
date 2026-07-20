@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Register - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-truck-front-fill text-success" style="font-size:3rem"></i>
+                        <h3 class="mt-2 fw-bold">Create Account</h3>
+                        <p class="text-muted">Join FarmRent as a Farmer or Equipment Owner</p>
+                    </div>
+                    <form method="POST" action="{{ url_for('auth.register') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">I want to join as</label>
+                                <select class="form-select" name="role" required>
+                                    <option value="farmer">Farmer</option>
+                                    <option value="owner">Equipment Owner</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="full_name" required placeholder="John Doe" minlength="2">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" name="email" required placeholder="you@example.com">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" required placeholder="+91 98765 43210" minlength="10">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" required minlength="6" placeholder="Min 6 characters">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" name="confirm_password" required minlength="6" placeholder="Confirm password">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" required id="terms">
+                                <label class="form-check-label" for="terms">I agree to the <a href="#" class="text-success">Terms of Service</a></label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+                    <hr class="my-4">
+                    <p class="text-center mb-0">Already have an account? <a href="{{ url_for('auth.login') }}" class="text-success fw-semibold">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

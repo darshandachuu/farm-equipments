@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Book {{ equipment.name }} - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('farmer.search_equipment') }}" class="text-success">Equipment</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('farmer.view_equipment', equipment_id=equipment.id) }}" class="text-success">{{ equipment.name }}</a></li>
+            <li class="breadcrumb-item active">Book</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-check me-2"></i>Book Equipment</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" id="bookingForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Start Date *</label>
+                                <input type="date" class="form-control" name="start_date" id="startDate" required min="{{ now_date }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Date *</label>
+                                <input type="date" class="form-control" name="end_date" id="endDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Rental Type</label>
+                                <select class="form-select" name="rental_type" id="rentalType">
+                                    <option value="daily">Daily</option>
+                                    {% if equipment.weekly_rate %}
+                                    <option value="weekly">Weekly</option>
+                                    {% endif %}
+                                    {% if equipment.monthly_rate %}
+                                    <option value="monthly">Monthly</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Pickup Location</label>
+                                <input type="text" class="form-control" name="pickup_location" placeholder="Enter pickup address">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Purpose of Rental</label>
+                                <input type="text" class="form-control" name="purpose" placeholder="e.g. Plowing, Harvesting, etc.">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Additional Notes</label>
+                                <textarea class="form-control" name="notes" rows="3" placeholder="Any special requirements..."></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+                                <i class="bi bi-send me-2"></i>Submit Booking Request
+                            </button>
+                            <a href="{{ url_for('farmer.view_equipment', equipment_id=equipment.id) }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ url_for('static', filename='uploads/equipment/' + equipment.image) }}" class="card-img-top" style="height:200px;object-fit:cover" alt="{{ equipment.name }}">
+                <div class="card-body">
+                    <h5 class="fw-bold">{{ equipment.name }}</h5>
+                    <p class="text-muted small">{{ equipment.category }} | {{ equipment.brand or '' }}</p>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Daily Rate</span>
+                        <strong class="text-success">{{ format_currency(equipment.daily_rate) }}</strong>
+                    </div>
+                    {% if equipment.security_deposit > 0 %}
+                    <div class="d-flex justify-content-between">
+                        <span>Security Deposit</span>
+                        <strong>{{ format_currency(equipment.security_deposit) }}</strong>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Duration</span>
+                            <strong id="totalDays">-</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Estimated Total</span>
+                            <strong class="text-success fs-5" id="estimatedTotal">-</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const dailyRate = {{ equipment.daily_rate }};
+const weeklyRate = {{ equipment.weekly_rate or 0 }};
+const monthlyRate = {{ equipment.monthly_rate or 0 }};
+
+document.getElementById('startDate').addEventListener('change', calculateTotal);
+document.getElementById('endDate').addEventListener('change', calculateTotal);
+document.getElementById('rentalType').addEventListener('change', calculateTotal);
+
+function calculateTotal() {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    const type = document.getElementById('rentalType').value;
+    if (!start || !end) return;
+    const days = Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
+    if (days <= 0) return;
+    document.getElementById('totalDays').textContent = days + ' day(s)';
+    let total = 0;
+    if (type === 'weekly' && weeklyRate > 0) {
+        total = Math.floor(days / 7) * weeklyRate + (days % 7) * dailyRate;
+    } else if (type === 'monthly' && monthlyRate > 0) {
+        total = Math.floor(days / 30) * monthlyRate + (days % 30) * dailyRate;
+    } else {
+        total = days * dailyRate;
+    }
+    document.getElementById('estimatedTotal').textContent = '₹' + total.toLocaleString('en-IN', {minimumFractionDigits: 2});
+}
+
+document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

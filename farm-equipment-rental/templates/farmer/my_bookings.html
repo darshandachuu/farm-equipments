@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}My Bookings - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0"><i class="bi bi-journal-check me-2"></i>My Bookings</h3>
+    </div>
+
+    <div class="mb-4">
+        <a href="{{ url_for('farmer.my_bookings') }}" class="btn btn-sm {{ 'btn-success' if not current_status else 'btn-outline-success' }}">All</a>
+        <a href="{{ url_for('farmer.my_bookings', status='pending') }}" class="btn btn-sm {{ 'btn-warning text-dark' if current_status == 'pending' else 'btn-outline-warning' }}">Pending</a>
+        <a href="{{ url_for('farmer.my_bookings', status='approved') }}" class="btn btn-sm {{ 'btn-info' if current_status == 'approved' else 'btn-outline-info' }}">Approved</a>
+        <a href="{{ url_for('farmer.my_bookings', status='active') }}" class="btn btn-sm {{ 'btn-success' if current_status == 'active' else 'btn-outline-success' }}">Active</a>
+        <a href="{{ url_for('farmer.my_bookings', status='completed') }}" class="btn btn-sm {{ 'btn-secondary' if current_status == 'completed' else 'btn-outline-secondary' }}">Completed</a>
+        <a href="{{ url_for('farmer.my_bookings', status='cancelled') }}" class="btn btn-sm {{ 'btn-danger' if current_status == 'cancelled' else 'btn-outline-danger' }}">Cancelled</a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {% if bookings.items %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Booking #</th>
+                            <th>Equipment</th>
+                            <th>Dates</th>
+                            <th>Days</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings.items %}
+                        <tr>
+                            <td><strong>{{ b.booking_number }}</strong></td>
+                            <td>
+                                {{ b.equipment.name }}
+                                <br><small class="text-muted">{{ b.equipment.category }}</small>
+                            </td>
+                            <td>
+                                <small>{{ b.start_date.strftime('%d %b %Y') }}<br>to {{ b.end_date.strftime('%d %b %Y') }}</small>
+                            </td>
+                            <td>{{ b.total_days }}</td>
+                            <td><strong>{{ format_currency(b.total_amount) }}</strong></td>
+                            <td>
+                                {% if b.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif b.status == 'approved' %}
+                                <span class="badge bg-info">Approved</span>
+                                {% elif b.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                                {% elif b.status == 'completed' %}
+                                <span class="badge bg-secondary">Completed</span>
+                                {% elif b.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                                {% elif b.status == 'rejected' %}
+                                <span class="badge bg-dark">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if b.status == 'approved' %}
+                                <a href="{{ url_for('payment.make_payment', booking_id=b.id) }}" class="btn btn-sm btn-success">Pay Now</a>
+                                {% endif %}
+                                {% if b.status in ('pending', 'approved') %}
+                                <form method="POST" action="{{ url_for('farmer.cancel_booking', booking_id=b.id) }}" class="d-inline" onsubmit="return confirm('Cancel this booking?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if bookings.pages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if bookings.has_prev %}
+                    <li class="page-item"><a class="page-link" href="?page={{ bookings.prev_num }}&status={{ current_status }}">Prev</a></li>
+                    {% endif %}
+                    {% for p in bookings.iter_pages() %}
+                    {% if p %}
+                    <li class="page-item {{ 'active' if p == bookings.page }}"><a class="page-link" href="?page={{ p }}&status={{ current_status }}">{{ p }}</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                    {% endfor %}
+                    {% if bookings.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ bookings.next_num }}&status={{ current_status }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size:4rem"></i>
+                <h4 class="text-muted mt-3">No bookings found</h4>
+                <a href="{{ url_for('farmer.search_equipment') }}" class="btn btn-success mt-2">Browse Equipment</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

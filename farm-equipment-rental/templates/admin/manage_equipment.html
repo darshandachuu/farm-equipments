@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Manage Equipment - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <h3 class="fw-bold mb-4"><i class="bi bi-tools me-2"></i>Manage Equipment</h3>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" name="search" placeholder="Search equipment..." value="{{ search }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="status">
+                                <option value="">All Status</option>
+                                <option value="pending" {{ 'selected' if current_status == 'pending' }}>Pending</option>
+                                <option value="approved" {{ 'selected' if current_status == 'approved' }}>Approved</option>
+                                <option value="inactive" {{ 'selected' if current_status == 'inactive' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100"><i class="bi bi-search me-1"></i>Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Owner</th>
+                                    <th>Rate/Day</th>
+                                    <th>Approved</th>
+                                    <th>Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for e in equipment.items %}
+                                <tr>
+                                    <td>{{ e.id }}</td>
+                                    <td><strong>{{ e.name }}</strong></td>
+                                    <td>{{ e.category }}</td>
+                                    <td>{{ e.owner.user.full_name }}</td>
+                                    <td>₹{{ "{:,.0f}".format(e.daily_rate) }}</td>
+                                    <td>
+                                        {% if e.is_approved %}
+                                        <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if e.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if not e.is_approved %}
+                                        <form method="POST" action="{{ url_for('admin.approve_equipment', equipment_id=e.id) }}" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button class="btn btn-sm btn-success" title="Approve"><i class="bi bi-check-lg"></i></button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('admin.reject_equipment', equipment_id=e.id) }}" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button class="btn btn-sm btn-danger" title="Reject"><i class="bi bi-x-lg"></i></button>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if equipment.pages > 1 %}
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            {% for p in equipment.iter_pages() %}
+                            {% if p %}
+                            <li class="page-item {{ 'active' if p == equipment.page }}"><a class="page-link" href="?page={{ p }}&status={{ current_status }}&search={{ search }}">{{ p }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+<div class="d-flex" id="wrapper">
+    <nav id="sidebar" class="bg-dark text-light sidebar">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h5 class="mb-0"><i class="bi bi-truck-front-fill me-2 text-success"></i>FarmRent</h5>
+            <small class="text-muted">Owner Panel</small>
+        </div>
+        <ul class="nav flex-column p-2">
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'dashboard' }}" href="{{ url_for('owner.dashboard') }}">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'equipment' }}" href="{{ url_for('owner.my_equipment') }}">
+                    <i class="bi bi-tools me-2"></i>My Equipment
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'add_equipment' }}" href="{{ url_for('owner.add_equipment') }}">
+                    <i class="bi bi-plus-circle me-2"></i>Add Equipment
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'bookings' }}" href="{{ url_for('owner.bookings') }}">
+                    <i class="bi bi-journal-check me-2"></i>Bookings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'earnings' }}" href="{{ url_for('owner.earnings') }}">
+                    <i class="bi bi-wallet2 me-2"></i>Earnings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'profile' }}" href="{{ url_for('auth.profile') }}">
+                    <i class="bi bi-person me-2"></i>Profile
+                </a>
+            </li>
+            <li class="nav-item mt-3 border-top border-secondary pt-3">
+                <a class="nav-link text-light" href="{{ url_for('farmer.dashboard') }}">
+                    <i class="bi bi-arrow-left-circle me-2"></i>Switch to Farmer
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">
+                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="page-content-wrapper" class="w-100">
+        <nav class="navbar navbar-light bg-white border-bottom px-3 d-md-none">
+            <button class="btn btn-sm btn-outline-success" id="toggle-sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="fw-bold text-success">FarmRent Owner</span>
+        </nav>
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+</div>

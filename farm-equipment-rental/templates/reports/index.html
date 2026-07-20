@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Reports - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <h3 class="fw-bold mb-4"><i class="bi bi-bar-chart me-2"></i>Reports</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <a href="{{ url_for('reports.equipment_usage') }}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                            <i class="bi bi-tools text-success" style="font-size:3rem"></i>
+                            <h5 class="mt-3 fw-bold text-dark">Equipment Usage</h5>
+                            <p class="text-muted">View equipment booking statistics</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('reports.revenue') }}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                            <i class="bi bi-graph-up text-success" style="font-size:3rem"></i>
+                            <h5 class="mt-3 fw-bold text-dark">Revenue Report</h5>
+                            <p class="text-muted">Track revenue and transactions</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('reports.bookings') }}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                            <i class="bi bi-journal-bookmark text-success" style="font-size:3rem"></i>
+                            <h5 class="mt-3 fw-bold text-dark">Booking Report</h5>
+                            <p class="text-muted">Booking statistics and trends</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('reports.users') }}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                            <i class="bi bi-people text-success" style="font-size:3rem"></i>
+                            <h5 class="mt-3 fw-bold text-dark">User Activity</h5>
+                            <p class="text-muted">User registrations and activity</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

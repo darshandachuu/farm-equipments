@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Manage Payments - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <h3 class="fw-bold mb-4"><i class="bi bi-credit-card me-2"></i>Manage Payments</h3>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm bg-success text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ format_currency(total_completed) }}</h3>
+                            <small>Total Completed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <h3>{{ format_currency(total_pending) }}</h3>
+                            <small>Total Pending</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <a href="{{ url_for('admin.manage_payments') }}" class="btn btn-sm {{ 'btn-dark' if not current_status else 'btn-outline-dark' }}">All</a>
+                <a href="{{ url_for('admin.manage_payments', status='completed') }}" class="btn btn-sm {{ 'btn-success' if current_status == 'completed' else 'btn-outline-success' }}">Completed</a>
+                <a href="{{ url_for('admin.manage_payments', status='pending') }}" class="btn btn-sm {{ 'btn-warning text-dark' if current_status == 'pending' else 'btn-outline-warning' }}">Pending</a>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if payments.items %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Payment #</th>
+                                    <th>Booking</th>
+                                    <th>Payer</th>
+                                    <th>Payee</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in payments.items %}
+                                <tr>
+                                    <td><strong>{{ p.payment_number }}</strong></td>
+                                    <td>{{ p.booking.booking_number }}</td>
+                                    <td>{{ p.payer.full_name }}</td>
+                                    <td>{{ p.payee.full_name }}</td>
+                                    <td><strong>₹{{ "{:,.0f}".format(p.amount) }}</strong></td>
+                                    <td><span class="badge bg-{{ 'primary' if p.payment_type == 'rental' else 'warning' }}">{{ p.payment_type|capitalize }}</span></td>
+                                    <td>{{ p.payment_method|replace('_',' ')|capitalize }}</td>
+                                    <td>
+                                        {% if p.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">{{ p.status|capitalize }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ p.created_at.strftime('%d %b %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if payments.pages > 1 %}
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            {% for p in payments.iter_pages() %}
+                            {% if p %}
+                            <li class="page-item {{ 'active' if p == payments.page }}"><a class="page-link" href="?page={{ p }}&status={{ current_status }}">{{ p }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-muted text-center py-4">No payments found.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

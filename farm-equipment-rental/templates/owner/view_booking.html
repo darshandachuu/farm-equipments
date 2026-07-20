@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Booking Details - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/owner_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">Booking #{{ booking.booking_number }}</h3>
+                <a href="{{ url_for('owner.bookings') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Equipment</label>
+                                    <p class="fw-bold mb-0">{{ booking.equipment.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Farmer</label>
+                                    <p class="fw-bold mb-0">{{ booking.farmer.full_name }}</p>
+                                    <small class="text-muted">{{ booking.farmer.email }}</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Start Date</label>
+                                    <p class="fw-bold mb-0">{{ booking.start_date.strftime('%d %b %Y') }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">End Date</label>
+                                    <p class="fw-bold mb-0">{{ booking.end_date.strftime('%d %b %Y') }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Duration</label>
+                                    <p class="fw-bold mb-0">{{ booking.total_days }} day(s)</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Rental Type</label>
+                                    <p class="fw-bold mb-0">{{ booking.rental_type|capitalize }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Total Amount</label>
+                                    <p class="fw-bold text-success mb-0">{{ format_currency(booking.total_amount) }}</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small">Security Deposit</label>
+                                    <p class="fw-bold mb-0">{{ format_currency(booking.security_deposit) }}</p>
+                                </div>
+                                {% if booking.pickup_location %}
+                                <div class="col-12">
+                                    <label class="text-muted small">Pickup Location</label>
+                                    <p class="mb-0">{{ booking.pickup_location }}</p>
+                                </div>
+                                {% endif %}
+                                {% if booking.purpose %}
+                                <div class="col-12">
+                                    <label class="text-muted small">Purpose</label>
+                                    <p class="mb-0">{{ booking.purpose }}</p>
+                                </div>
+                                {% endif %}
+                                {% if booking.notes %}
+                                <div class="col-12">
+                                    <label class="text-muted small">Farmer Notes</label>
+                                    <p class="mb-0">{{ booking.notes }}</p>
+                                </div>
+                                {% endif %}
+                                {% if booking.owner_notes %}
+                                <div class="col-12">
+                                    <label class="text-muted small">Your Notes</label>
+                                    <p class="mb-0">{{ booking.owner_notes }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body text-center p-4">
+                            <h1>
+                                {% if booking.status == 'pending' %}
+                                <span class="badge bg-warning text-dark fs-4">Pending</span>
+                                {% elif booking.status == 'approved' %}
+                                <span class="badge bg-info fs-4">Approved</span>
+                                {% elif booking.status == 'active' %}
+                                <span class="badge bg-success fs-4">Active</span>
+                                {% elif booking.status == 'completed' %}
+                                <span class="badge bg-secondary fs-4">Completed</span>
+                                {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger fs-4">Cancelled</span>
+                                {% elif booking.status == 'rejected' %}
+                                <span class="badge bg-dark fs-4">Rejected</span>
+                                {% endif %}
+                            </h1>
+                        </div>
+                    </div>
+
+                    {% if booking.status == 'pending' %}
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3">Actions</h6>
+                            <form method="POST" action="{{ url_for('owner.approve_booking', booking_id=booking.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-success w-100 mb-2"><i class="bi bi-check-lg me-1"></i>Approve Booking</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('owner.reject_booking', booking_id=booking.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div class="mb-2">
+                                    <textarea class="form-control" name="owner_notes" rows="2" placeholder="Reason for rejection (optional)"></textarea>
+                                </div>
+                                <button class="btn btn-danger w-100"><i class="bi bi-x-lg me-1"></i>Reject Booking</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if booking.status == 'active' %}
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3">Actions</h6>
+                            <form method="POST" action="{{ url_for('owner.complete_booking', booking_id=booking.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-success w-100"><i class="bi bi-check-circle me-1"></i>Mark as Completed</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Edit Equipment - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/owner_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <h3 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2"></i>Edit Equipment</h3>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Equipment Name *</label>
+                                <input type="text" class="form-control" name="name" value="{{ equipment.name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category *</label>
+                                <select class="form-select" name="category" required>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat }}" {{ 'selected' if equipment.category == cat }}>{{ cat }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="description" rows="3">{{ equipment.description or '' }}</textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Brand</label>
+                                <input type="text" class="form-control" name="brand" value="{{ equipment.brand or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Model</label>
+                                <input type="text" class="form-control" name="model" value="{{ equipment.model or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Year</label>
+                                <input type="number" class="form-control" name="year" value="{{ equipment.year or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Condition</label>
+                                <select class="form-select" name="condition">
+                                    <option value="Excellent" {{ 'selected' if equipment.condition == 'Excellent' }}>Excellent</option>
+                                    <option value="Good" {{ 'selected' if equipment.condition == 'Good' }}>Good</option>
+                                    <option value="Fair" {{ 'selected' if equipment.condition == 'Fair' }}>Fair</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Location</label>
+                                <input type="text" class="form-control" name="location" value="{{ equipment.location or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">New Image (leave blank to keep current)</label>
+                                <input type="file" class="form-control" name="image" accept="image/*">
+                            </div>
+                            <div class="col-12"><hr></div>
+                            <div class="col-md-4">
+                                <label class="form-label">Daily Rate (₹) *</label>
+                                <input type="number" class="form-control" name="daily_rate" value="{{ equipment.daily_rate }}" step="0.01" min="1" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Weekly Rate (₹)</label>
+                                <input type="number" class="form-control" name="weekly_rate" value="{{ equipment.weekly_rate or '' }}" step="0.01">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Monthly Rate (₹)</label>
+                                <input type="number" class="form-control" name="monthly_rate" value="{{ equipment.monthly_rate or '' }}" step="0.01">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Security Deposit (₹)</label>
+                                <input type="number" class="form-control" name="security_deposit" value="{{ equipment.security_deposit or 0 }}" step="0.01">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">
+                                <i class="bi bi-check-lg me-1"></i>Update Equipment
+                            </button>
+                            <a href="{{ url_for('owner.my_equipment') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

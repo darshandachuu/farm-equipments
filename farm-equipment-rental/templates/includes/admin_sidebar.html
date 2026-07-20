@@ -1,0 +1,67 @@
+<div class="d-flex" id="wrapper">
+    <nav id="sidebar" class="bg-dark text-light sidebar">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h5 class="mb-0"><i class="bi bi-truck-front-fill me-2 text-success"></i>FarmRent</h5>
+            <small class="text-muted">Admin Panel</small>
+        </div>
+        <ul class="nav flex-column p-2">
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'dashboard' }}" href="{{ url_for('admin.dashboard') }}">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'users' }}" href="{{ url_for('admin.manage_users') }}">
+                    <i class="bi bi-people me-2"></i>Manage Users
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'equipment' }}" href="{{ url_for('admin.manage_equipment') }}">
+                    <i class="bi bi-tools me-2"></i>Manage Equipment
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'bookings' }}" href="{{ url_for('admin.manage_bookings') }}">
+                    <i class="bi bi-journal-check me-2"></i>Manage Bookings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'payments' }}" href="{{ url_for('admin.manage_payments') }}">
+                    <i class="bi bi-credit-card me-2"></i>Payments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'reports' }}" href="{{ url_for('reports.index') }}">
+                    <i class="bi bi-bar-chart me-2"></i>Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-light {{ 'active' if active_page == 'notifications' }}" href="{{ url_for('admin.notifications') }}">
+                    <i class="bi bi-bell me-2"></i>Notifications
+                </a>
+            </li>
+            <li class="nav-item mt-3 border-top border-secondary pt-3">
+                <a class="nav-link text-light" href="{{ url_for('auth.profile') }}">
+                    <i class="bi bi-person me-2"></i>Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="{{ url_for('auth.logout') }}">
+                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="page-content-wrapper" class="w-100">
+        <nav class="navbar navbar-light bg-white border-bottom px-3 d-md-none">
+            <button class="btn btn-sm btn-outline-success" id="toggle-sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="fw-bold text-success">FarmRent Admin</span>
+        </nav>
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+</div>

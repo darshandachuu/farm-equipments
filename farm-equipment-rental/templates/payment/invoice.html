@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Invoice #{{ payment.payment_number }} - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h3 class="fw-bold text-success"><i class="bi bi-truck-front-fill me-2"></i>FarmRent</h3>
+                            <p class="text-muted">Farm Equipment Rental System</p>
+                        </div>
+                        <div class="text-end">
+                            <h4 class="fw-bold">INVOICE</h4>
+                            <p class="mb-1"><strong>#{{ payment.payment_number }}</strong></p>
+                            <p class="text-muted">{{ payment.created_at.strftime('%d %B %Y') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Paid By</h6>
+                            <p class="mb-0 fw-bold">{{ payment.payer.full_name }}</p>
+                            <p class="text-muted small">{{ payment.payer.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Paid To</h6>
+                            <p class="mb-0 fw-bold">{{ payment.payee.full_name }}</p>
+                            <p class="text-muted small">{{ payment.payee.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded mb-4">
+                        <h6>Booking Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><small class="text-muted">Booking #:</small> <strong>{{ payment.booking.booking_number }}</strong></p>
+                                <p class="mb-1"><small class="text-muted">Equipment:</small> <strong>{{ payment.booking.equipment.name }}</strong></p>
+                                <p class="mb-0"><small class="text-muted">Period:</small> {{ payment.booking.start_date.strftime('%d %b') }} - {{ payment.booking.end_date.strftime('%d %b %Y') }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><small class="text-muted">Payment Type:</small> <strong>{{ payment.payment_type|capitalize }}</strong></p>
+                                <p class="mb-1"><small class="text-muted">Method:</small> {{ payment.payment_method|replace('_',' ')|capitalize }}</p>
+                                <p class="mb-0"><small class="text-muted">Transaction ID:</small> {{ payment.transaction_id or 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ payment.booking.equipment.name }} - {{ payment.booking.total_days }} day(s) rental</td>
+                                <td class="text-end">{{ format_currency(payment.amount) }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th class="text-success fs-5">Total Paid</th>
+                                <th class="text-end text-success fs-5">{{ format_currency(payment.amount) }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">Thank you for using FarmRent!</p>
+                        <span class="badge bg-{{ 'success' if payment.status == 'completed' else 'warning' }} fs-6">{{ payment.status|upper }}</span>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button onclick="window.print()" class="btn btn-outline-success"><i class="bi bi-printer me-1"></i>Print Invoice</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Make Payment - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-credit-card me-2"></i>Make Payment</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <h6 class="text-muted">Booking Details</h6>
+                        <div class="bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Booking #</span><strong>{{ booking.booking_number }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Equipment</span><strong>{{ booking.equipment.name }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Duration</span><strong>{{ booking.total_days }} day(s)</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Dates</span><small>{{ booking.start_date.strftime('%d %b') }} - {{ booking.end_date.strftime('%d %b %Y') }}</small>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Total Amount</span>
+                                <span class="fw-bold text-success fs-5">{{ format_currency(booking.total_amount) }}</span>
+                            </div>
+                            {% if booking.security_deposit > 0 %}
+                            <div class="d-flex justify-content-between">
+                                <span>Security Deposit</span>
+                                <strong>{{ format_currency(booking.security_deposit) }}</strong>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method *</label>
+                            <select class="form-select" name="payment_method" required>
+                                <option value="cash">Cash</option>
+                                <option value="upi">UPI</option>
+                                <option value="card">Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Payment notes (optional)"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold" onclick="return confirm('Confirm payment of {{ format_currency(booking.total_amount) }}?')">
+                            <i class="bi bi-check-circle me-2"></i>Pay {{ format_currency(booking.total_amount) }}
+                        </button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('farmer.my_bookings') }}" class="text-muted text-decoration-none">Back to Bookings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Payment History - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-credit-card me-2"></i>Payment History</h3>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {% if payments.items %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Payment #</th>
+                            <th>Booking #</th>
+                            <th>Type</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in payments.items %}
+                        <tr>
+                            <td><strong>{{ p.payment_number }}</strong></td>
+                            <td>{{ p.booking.booking_number }}</td>
+                            <td><span class="badge bg-{{ 'primary' if p.payment_type == 'rental' else 'warning' if p.payment_type == 'deposit' else 'info' }}">{{ p.payment_type|capitalize }}</span></td>
+                            <td>{{ p.payment_method|replace('_', ' ')|capitalize }}</td>
+                            <td><strong>{{ format_currency(p.amount) }}</strong></td>
+                            <td>
+                                {% if p.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                                {% elif p.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ p.status|capitalize }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ p.created_at.strftime('%d %b %Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('payment.invoice', payment_id=p.id) }}" class="btn btn-sm btn-outline-primary">Invoice</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-credit-card text-muted" style="font-size:4rem"></i>
+                <h4 class="text-muted mt-3">No payments yet</h4>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

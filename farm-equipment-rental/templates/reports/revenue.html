@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Revenue Report - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/admin_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0"><i class="bi bi-graph-up me-2"></i>Revenue Report</h3>
+                <a href="{{ url_for('reports.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center p-4">
+                    <h2 class="text-success">{{ format_currency(total_revenue) }}</h2>
+                    <p class="text-muted">Total Revenue</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="fw-bold mb-0">Monthly Revenue</h5>
+                </div>
+                <div class="card-body">
+                    {% if monthly_data %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr><th>Month</th><th>Revenue</th><th>Transactions</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for month, revenue, transactions in monthly_data %}
+                                <tr>
+                                    <td><strong>{{ month }}</strong></td>
+                                    <td class="text-success fw-bold">{{ format_currency(revenue) }}</td>
+                                    <td>{{ transactions }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No revenue data yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.getElementById('toggle-sidebar')?.addEventListener('click', function() { document.getElementById('sidebar').classList.toggle('show'); });</script>
+{% endblock %}

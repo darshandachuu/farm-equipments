@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard - FarmRent{% endblock %}
+{% block content %}
+<div class="d-flex" id="wrapper">
+    {% include 'includes/owner_sidebar.html' %}
+    <div id="page-content-wrapper" class="w-100">
+        <div class="container-fluid p-4">
+            {% block dashboard_content %}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-0">Owner Dashboard</h3>
+                    <p class="text-muted mb-0">Welcome, {{ current_user.full_name }}!</p>
+                </div>
+                <a href="{{ url_for('owner.add_equipment') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle me-1"></i>Add Equipment
+                </a>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#198754,#157347);color:#fff">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div><h2 class="mb-0">{{ total_equipment }}</h2><small>Total Equipment</small></div>
+                                <i class="bi bi-tools fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#0d6efd,#0b5ed7);color:#fff">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div><h2 class="mb-0">{{ available_equipment }}</h2><small>Available</small></div>
+                                <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#ffc107,#e0a800);color:#333">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div><h2 class="mb-0">{{ pending_bookings }}</h2><small>Pending Requests</small></div>
+                                <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#198754,#157347);color:#fff">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div><h2 class="mb-0">{{ format_currency(total_earnings) }}</h2><small>Total Earnings</small></div>
+                                <i class="bi bi-wallet2 fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between">
+                            <h5 class="fw-bold mb-0">Recent Bookings</h5>
+                            <a href="{{ url_for('owner.bookings') }}" class="text-success text-decoration-none">View All</a>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_bookings %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Booking #</th>
+                                            <th>Equipment</th>
+                                            <th>Farmer</th>
+                                            <th>Dates</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for b in recent_bookings %}
+                                        <tr>
+                                            <td><strong>{{ b.booking_number }}</strong></td>
+                                            <td>{{ b.equipment.name }}</td>
+                                            <td>{{ b.farmer.full_name }}</td>
+                                            <td><small>{{ b.start_date.strftime('%d %b') }} - {{ b.end_date.strftime('%d %b') }}</small></td>
+                                            <td>
+                                                {% if b.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                {% elif b.status == 'approved' %}
+                                                <span class="badge bg-info">Approved</span>
+                                                {% elif b.status == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                                {% elif b.status == 'completed' %}
+                                                <span class="badge bg-secondary">Completed</span>
+                                                {% else %}
+                                                <span class="badge bg-danger">{{ b.status|capitalize }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="{{ url_for('owner.view_booking', booking_id=b.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox text-muted fs-1"></i>
+                                <p class="text-muted mt-2">No bookings yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="fw-bold mb-0">My Equipment</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for e in my_equipment %}
+                            <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                                <img src="{{ url_for('static', filename='uploads/equipment/' + e.image) }}" class="rounded me-3" style="width:50px;height:50px;object-fit:cover" alt="{{ e.name }}">
+                                <div class="flex-grow-1">
+                                    <strong class="d-block">{{ e.name }}</strong>
+                                    <small class="text-muted">{{ format_currency(e.daily_rate) }}/day</small>
+                                </div>
+                                {% if e.is_approved %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                            <a href="{{ url_for('owner.my_equipment') }}" class="btn btn-outline-success btn-sm w-100 mt-2">View All</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('toggle-sidebar')?.addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('show');
+});
+</script>
+{% endblock %}

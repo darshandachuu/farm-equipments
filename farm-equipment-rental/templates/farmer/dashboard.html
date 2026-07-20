@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Farmer Dashboard - FarmRent{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">Farmer Dashboard</h3>
+            <p class="text-muted mb-0">Welcome back, {{ current_user.full_name }}!</p>
+        </div>
+        <a href="{{ url_for('farmer.search_equipment') }}" class="btn btn-success">
+            <i class="bi bi-search me-1"></i>Find Equipment
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-gradient-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div><h2 class="mb-0">{{ total_bookings }}</h2><small>Total Bookings</small></div>
+                        <i class="bi bi-journal-bookmark fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#0d6efd,#0b5ed7);color:#fff">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div><h2 class="mb-0">{{ active_bookings }}</h2><small>Active Rentals</small></div>
+                        <i class="bi bi-play-circle fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#ffc107,#e0a800);color:#333">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div><h2 class="mb-0">{{ pending_bookings }}</h2><small>Pending</small></div>
+                        <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm" style="background:linear-gradient(135deg,#198754,#157347);color:#fff">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div><h2 class="mb-0">{{ format_currency(total_spent) }}</h2><small>Total Spent</small></div>
+                        <i class="bi bi-currency-rupee fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Recent Bookings</h5>
+                    <a href="{{ url_for('farmer.my_bookings') }}" class="text-success text-decoration-none">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Booking #</th>
+                                    <th>Equipment</th>
+                                    <th>Dates</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in recent_bookings %}
+                                <tr>
+                                    <td><strong>{{ b.booking_number }}</strong></td>
+                                    <td>{{ b.equipment.name }}</td>
+                                    <td><small>{{ b.start_date.strftime('%d %b') }} - {{ b.end_date.strftime('%d %b %Y') }}</small></td>
+                                    <td>{{ format_currency(b.total_amount) }}</td>
+                                    <td>
+                                        {% if b.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif b.status == 'approved' %}
+                                        <span class="badge bg-info">Approved</span>
+                                        {% elif b.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% elif b.status == 'completed' %}
+                                        <span class="badge bg-secondary">Completed</span>
+                                        {% elif b.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        {% elif b.status == 'rejected' %}
+                                        <span class="badge bg-dark">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox text-muted fs-1"></i>
+                        <p class="text-muted mt-2">No bookings yet. Start by searching for equipment!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('farmer.search_equipment') }}" class="btn btn-outline-success w-100 mb-2">
+                        <i class="bi bi-search me-2"></i>Search Equipment
+                    </a>
+                    <a href="{{ url_for('farmer.my_bookings') }}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-journal-check me-2"></i>My Bookings
+                    </a>
+                    <a href="{{ url_for('farmer.payment_history') }}" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="bi bi-credit-card me-2"></i>Payment History
+                    </a>
+                    <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-dark w-100">
+                        <i class="bi bi-person me-2"></i>Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
